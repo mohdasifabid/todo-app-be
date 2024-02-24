@@ -18,5 +18,5 @@ const uri = process.env.MONGO_DB_ATLAS_URL;
 })();
 
 const port = process.env.PORT || 9000;
-app.use("/api/todo", todos);
+app.use("/api/todos", todos);
 app.listen(port, () => console.log(`Listening on Port ${port}`));
