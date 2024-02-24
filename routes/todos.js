@@ -17,17 +17,15 @@ const schema = new mongoose.Schema({
   label: String,
 });
 
-const TodoModel = mongoose.model("TodoModel", schema);
+const Todo = mongoose.model("Todo", schema);
 
 router.post("/", async (req, res) => {
-  console.log({req,res})
-
   const { error } = schemaValidator(req.body);
   if (error) {
     return res.status(400).send(error.details[0].message);
   }
   try {
-    const todo = new TodoModel({
+    const todo = new Todo({
       title: req.body.title,
       content: req.body.content,
       label: req.body.label,
@@ -42,7 +40,7 @@ router.post("/", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   try {
-    const deletedTodo = await TodoModel.findByIdAndDelete(req.params.id);
+    const deletedTodo = await Todo.findByIdAndDelete(req.params.id);
     return res.send(deletedTodo);
   } catch (error) {
     return res.status(404).send("Todo does not found");
@@ -52,7 +50,7 @@ router.delete("/:id", async (req, res) => {
 async function getTodos() {
     const pageNumber = 1;
     const pageSize = 10;
-    const note = await TodoModel.find()
+    const note = await Todo.find()
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .sort("title")
@@ -77,7 +75,7 @@ router.put("/:id", async (req, res) => {
     if (!title && !content && !label) {
       return res.status(400).send("ERROR: Missing required field");
     }
-    let todo = await TodoModel.findById(req.params.id);
+    let todo = await Todo.findById(req.params.id);
     if (!todo) {
       res.status(404).send("ERROR: Todo not found");
     } else {
