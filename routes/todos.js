@@ -1,0 +1,95 @@
+const express = require("express");
+const Joi = require("joi");
+const mongoose = require("mongoose");
+const router = express.Router();
+
+const todoSchema = Joi.object({
+  title: Joi.string().min(6).required(),
+  content: Joi.string().min(15).required(),
+  label: Joi.string().min(4).required(),
+});
+const schemaValidator = (body) => {
+  return todoSchema.validate(body);
+};
+const schema = new mongoose.Schema({
+  title: String,
+  content: String,
+  label: String,
+});
+
+const TodoModel = mongoose.model("TodoModel", schema);
+
+router.post("/", async (req, res) => {
+  console.log({req,res})
+
+  const { error } = schemaValidator(req.body);
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+  try {
+    const todo = new TodoModel({
+      title: req.body.title,
+      content: req.body.content,
+      label: req.body.label,
+    });
+    const savedTodo = await todo.save();
+    return res.status(201).send(savedTodo);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Internal Server Error");
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  try {
+    const deletedTodo = await TodoModel.findByIdAndDelete(req.params.id);
+    return res.send(deletedTodo);
+  } catch (error) {
+    return res.status(404).send("Todo does not found");
+  }
+});
+
+async function getTodos() {
+    const pageNumber = 1;
+    const pageSize = 10;
+    const note = await TodoModel.find()
+      .skip((pageNumber - 1) * pageSize)
+      .limit(pageSize)
+      .sort("title")
+      .select("title label content");
+    return note;
+  }
+router.get("/", async (req, res) => {
+  const data = await getTodos();
+  return res.send(data);
+});
+router.get("/:id", async (req, res) => {
+  try {
+    const todoById = await Todo.findById(req.params.id);
+    return res.send(todoById);
+  } catch (error) {
+    return res.status(404).send("Please provide a valid ID");
+  }
+});
+router.put("/:id", async (req, res) => {
+  try {
+    const { title, content, label } = req.body;
+    if (!title && !content && !label) {
+      return res.status(400).send("ERROR: Missing required field");
+    }
+    let todo = await TodoModel.findById(req.params.id);
+    if (!todo) {
+      res.status(404).send("ERROR: Todo not found");
+    } else {
+      todo.title = title ? title : todo.title;
+      todo.content = content ? content : todo.content;
+      todo.label = label ? label : todo.label;
+      todo.save();
+      return res.send(todo);
+    }
+  } catch (error) {
+    return res.status(404).send("Error: Failed in update");
+  }
+});
+
+module.exports = router;
