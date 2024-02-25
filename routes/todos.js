@@ -60,10 +60,9 @@ async function getTodos(req, res) {
     .select("title label content");
 
   const totalRecords = await Todo.countDocuments();
-  const paginatedItems = note.slice(startIndex, endIndex);
   
   res.json({
-    todos: paginatedItems,
+    todos: note,
     pageInfo: {
       currentPage: page,
       pageSize: pageSize,
