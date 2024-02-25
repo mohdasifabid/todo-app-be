@@ -47,18 +47,24 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-async function getTodos() {
-  const pageNumber = 1;
-  const pageSize = 10;
+async function getTodos(req) {
+  const page = parseInt(req.query.page) || 1;
+  const pageSize = parseInt(req.query.pageSize) || 5;
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = page * pageSize;
+
   const note = await Todo.find()
-    .skip((pageNumber - 1) * pageSize)
+    .skip((page - 1) * pageSize)
     .limit(pageSize)
     .sort("title")
     .select("title label content");
-  return note;
+    
+  const paginatedItems = note.slice(startIndex, endIndex);
+
+  return paginatedItems;
 }
 router.get("/", async (req, res) => {
-  const data = await getTodos();
+  const data = await getTodos(req);
   return res.send(data);
 });
 router.get("/:id", async (req, res) => {
