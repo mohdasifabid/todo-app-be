@@ -47,7 +47,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-async function getTodos(req) {
+async function getTodos(req, res) {
   const page = parseInt(req.query.page) || 1;
   const pageSize = parseInt(req.query.pageSize) || 5;
   const startIndex = (page - 1) * pageSize;
@@ -58,13 +58,22 @@ async function getTodos(req) {
     .limit(pageSize)
     .sort("title")
     .select("title label content");
-    
-  const paginatedItems = note.slice(startIndex, endIndex);
 
-  return paginatedItems;
+  const totalRecords = await Todo.countDocuments();
+  const paginatedItems = note.slice(startIndex, endIndex);
+  
+  res.json({
+    todos: paginatedItems,
+    pageInfo: {
+      currentPage: page,
+      pageSize: pageSize,
+      totalRecords: totalRecords,
+      totalPages: Math.ceil(note.length / pageSize),
+    },
+  });
 }
 router.get("/", async (req, res) => {
-  const data = await getTodos(req);
+  const data = await getTodos(req, res);
   return res.send(data);
 });
 router.get("/:id", async (req, res) => {
