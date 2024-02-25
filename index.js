@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
 const express = require("express");
-const app = express();
-const cors = require("cors");
 require("dotenv").config();
+const cors = require("cors");
 const todos = require("./routes/todos");
+const app = express();
+app.use(express.json());
 const uri = process.env.MONGO_DB_ATLAS_URL;
 
 (async () => {
