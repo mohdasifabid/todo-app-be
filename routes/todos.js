@@ -68,7 +68,7 @@ async function getTodos(req, res) {
       currentPage: page,
       pageSize: pageSize,
       totalRecords: totalRecords,
-      totalPages: Math.ceil(note.length / pageSize),
+      totalPages: Math.ceil(totalRecords / pageSize),
     },
   });
 }
