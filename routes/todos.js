@@ -24,6 +24,8 @@ router.post("/", async (req, res) => {
   if (error) {
     return res.status(400).send(error.details[0].message);
   }
+  console.log({ body: req });
+
   try {
     const todo = new Todo({
       title: req.body.title,
@@ -48,15 +50,15 @@ router.delete("/:id", async (req, res) => {
 });
 
 async function getTodos() {
-    const pageNumber = 1;
-    const pageSize = 10;
-    const note = await Todo.find()
-      .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize)
-      .sort("title")
-      .select("title label content");
-    return note;
-  }
+  const pageNumber = 1;
+  const pageSize = 10;
+  const note = await Todo.find()
+    .skip((pageNumber - 1) * pageSize)
+    .limit(pageSize)
+    .sort("title")
+    .select("title label content");
+  return note;
+}
 router.get("/", async (req, res) => {
   const data = await getTodos();
   return res.send(data);
